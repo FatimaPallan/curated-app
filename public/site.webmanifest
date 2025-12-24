@@ -1,0 +1,15 @@
+{
+  "name": "Curations by Amreen",
+  "short_name": "Amreen",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#d4698c",
+  "background_color": "#fdf7f4",
+  "display": "standalone"
+}
+
