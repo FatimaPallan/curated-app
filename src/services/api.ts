@@ -8,7 +8,7 @@ export type ApiProduct = {
   badge?: string;
 };
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://backend-78qe.onrender.com';
 
 export async function fetchProducts(category: 'accessories' | 'gifts') {
   try {
