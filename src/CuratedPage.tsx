@@ -218,7 +218,7 @@ function ProductGrid({
               ₹{product.price}
             </div>
             <a
-              href={`https://wa.me/919876543210?text=Hi! I'm interested in: ${product.name}`}
+              href={`https://wa.me/917406785941?text=Hi! I'm interested in: ${product.name}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-white transition"

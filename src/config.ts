@@ -5,9 +5,9 @@ export const APP_DESCRIPTION =
 export const SOCIAL = {
   accessoriesLabel: 'EverGlow Accessories',
   giftsLabel: 'Gifts & Crafts Hub',
-  instagramAccessories: 'everglowaccessories',
-  instagramGifts: 'giftsandcraftshub',
-  whatsappNumber: '919876543210',
+  instagramAccessories: 'ever_glow_accessories01',
+  instagramGifts: 'gifts_n_crafts_hub',
+  whatsappNumber: '917406785941',
 };
 
 export const SANITY_CONFIG = {
