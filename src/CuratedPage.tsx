@@ -58,6 +58,36 @@ const hoverCard = {
   hover: { y: -8, boxShadow: '0 12px 30px rgba(0,0,0,0.18)' },
 };
 
+const ACCESSORIES_SUBCATEGORIES = [
+  'Chain bracelet',
+  'Necklaces',
+  'Finger rings',
+  'Kada Bracelet',
+  'Thin wrist kada',
+  'Hoops/Earrings',
+  'Insta viral pinteresty products',
+  'Mens Jewellery',
+  'Korean earrings',
+  'Combos',
+  'Anklets',
+  'Hair accessories',
+  'Gifting',
+  'Add ons',
+];
+
+const GIFTS_SUBCATEGORIES = [
+  'Bouquet',
+  'Premium hampers',
+  'Budget Friendly hampers',
+  'Accessories hampers',
+  'Gifting options',
+  'Gifts for her',
+  'Gifts for him',
+  'Wedding favour',
+  'Baby shower favour',
+  'Return gifts',
+];
+
 const InstagramIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.5" />
@@ -68,9 +98,12 @@ const InstagramIcon = () => (
 
 
 const TESTIMONIALS = [
-  { quote: 'Beautifully crafted and exactly as I envisioned.', name: 'Riya', tag: 'Custom bouquet' },
-  { quote: 'Elegant accessories that elevated my outfit.', name: 'Aanya', tag: 'EverGlow client' },
-  { quote: 'Quick response, thoughtful curation, great packaging.', name: 'Meera', tag: 'Gift hamper' },
+  { quote: 'Those earrings look absolutely stunning on me ...! Nice quality with lightweight feel✨love it more', name: 'Mubashira', tag: 'EverGlow client' },
+  { quote: 'Thanks for this beautiful ring,it was a perfect gift for my mom😊💗', name: 'Mehar', tag: 'EverGlow client' },
+  { quote: 'Big thanks to @ever_glow_accessories01 for for the beautiful and super quality ring and bracelet. The packaging was amazing with such a cutie freebie💗😍 surely going to buy again💗', name: 'Batul', tag: 'EverGlow client' },
+  { quote: 'I really loved the hamper. Detailing toh bohat acchi hui hai 💗 definitely next order phirse karunga 🤗', name: 'Rohaan', tag: 'Gift hamper' },
+  { quote: 'I am really happy with this bouquet💗 The roses are so fresh and perfectly arranged. Your effort and talent truly shows. Thank you.', name: 'Harshita', tag: 'Custom bouquet' },
+  { quote: "I'm in love with that accessories bouquet... Bohat accha hua tha bouquet💗anti tarnish pendants are so good the quality is really good n vo ribbon roses😍💗", name: 'Ayesha', tag: 'Accessories bouquet' },
 ];
 
 const FILTERS: Record<
@@ -143,6 +176,257 @@ function priceToNumber(price: string | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+function ProductCard({
+  product,
+  theme,
+  themeKey,
+  instagramHandle,
+}: {
+  product: Product;
+  theme: typeof THEMES[ThemeKey];
+  themeKey: ThemeKey;
+  instagramHandle: string;
+}) {
+  return (
+    <motion.article
+      key={product.id}
+      variants={hoverCard}
+      initial="rest"
+      whileHover="hover"
+      animate="rest"
+      className="bg-white rounded-xl overflow-hidden border-2 border-transparent transition"
+      style={{ boxShadow: '0 4px 15px rgba(0,0,0,0.08)' }}
+    >
+      <div
+        className="w-full h-64 flex items-center justify-center overflow-hidden relative"
+        style={{
+          background: `linear-gradient(135deg, ${theme.accentLight}, ${theme.accentSecondary}33)`,
+        }}
+      >
+        {product.badge ? (
+          <span className="absolute top-3 left-3 z-10 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-neutral-800 shadow-sm border border-white/70">
+            {product.badge}
+          </span>
+        ) : null}
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-cover transition duration-300 hover:scale-105"
+          loading="lazy"
+          decoding="async"
+          onError={(e) => {
+            const fallback = document.createTextNode(theme.emptyIcon);
+            e.currentTarget.replaceWith(fallback);
+          }}
+        />
+      </div>
+      <div className="p-5 space-y-3">
+        <div>
+          <div className="text-lg font-bold text-neutral-900">{product.name}</div>
+          {product.subcategory && (
+            <div className="text-xs text-gray-500 mt-1 font-medium">{product.subcategory}</div>
+          )}
+        </div>
+        <p className="text-sm text-gray-600 leading-relaxed">{product.desc}</p>
+        <div className="space-y-1">
+          {product.offerPrice ? (
+            <div className="flex items-center gap-2">
+              <div className="text-lg font-semibold" style={{ color: theme.accent }}>
+                ₹{product.offerPrice}
+              </div>
+              {product.originalPrice && (
+                <div className="text-sm text-gray-400 line-through">₹{product.originalPrice}</div>
+              )}
+            </div>
+          ) : product.originalPrice ? (
+            <div className="text-base font-semibold" style={{ color: theme.accent }}>
+              ₹{product.originalPrice}
+            </div>
+          ) : (
+            <div className="text-base font-semibold" style={{ color: theme.accent }}>
+              ₹{product.price || 'Price on inquiry'}
+            </div>
+          )}
+        </div>
+        {themeKey === 'accessories' && product.availableQuantity !== undefined && (
+          <div>
+            {product.availableQuantity === 0 ? (
+              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
+                Sold Out
+              </span>
+            ) : product.availableQuantity <= 3 ? (
+              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-50 text-orange-700 border border-orange-200">
+                Only {product.availableQuantity} remaining
+              </span>
+            ) : null}
+          </div>
+        )}
+        <a
+          href={`https://www.instagram.com/${instagramHandle}/`}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-white transition"
+          style={{ background: theme.accent }}
+        >
+          💬 DM on Instagram
+        </a>
+      </div>
+    </motion.article>
+  );
+}
+
+function ProductGridBySubcategory({
+  items,
+  themeKey,
+  loading,
+  instagramHandle,
+}: {
+  items: Product[];
+  themeKey: ThemeKey;
+  loading: boolean;
+  instagramHandle: string;
+}) {
+  const theme = THEMES[themeKey];
+  const [expandedSubcategories, setExpandedSubcategories] = useState<Set<string>>(new Set());
+
+  // Group products by subcategory
+  const groupedProducts = useMemo(() => {
+    const groups: Record<string, Product[]> = {};
+
+    // Group products
+    items.forEach((product) => {
+      const sub = product.subcategory || 'Uncategorized';
+      if (!groups[sub]) {
+        groups[sub] = [];
+      }
+      groups[sub].push(product);
+    });
+
+    // Only show subcategories that have products
+    const result: Record<string, Product[]> = {};
+    Object.keys(groups).forEach((key) => {
+      if (groups[key].length > 0) {
+        result[key] = groups[key];
+      }
+    });
+
+    return result;
+  }, [items, themeKey]);
+
+  const toggleSubcategory = (subcategory: string) => {
+    setExpandedSubcategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(subcategory)) {
+        next.delete(subcategory);
+      } else {
+        next.add(subcategory);
+      }
+      return next;
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, idx) => (
+          <div
+            key={idx}
+            className="bg-white rounded-xl border-2 border-transparent overflow-hidden animate-pulse"
+            style={{ boxShadow: '0 4px 15px rgba(0,0,0,0.08)' }}
+          >
+            <div
+              className="w-full h-64"
+              style={{
+                background: `linear-gradient(135deg, ${theme.accentLight}, ${theme.accentSecondary}33)`,
+              }}
+            />
+            <div className="p-5 space-y-3">
+              <div className="h-5 bg-gray-200 rounded w-2/3" />
+              <div className="h-4 bg-gray-200 rounded w-full" />
+              <div className="h-4 bg-gray-200 rounded w-5/6" />
+              <div className="h-5 bg-gray-200 rounded w-1/3" />
+              <div className="h-9 bg-gray-200 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!items.length) {
+    return (
+      <motion.div
+        className="col-span-full text-center rounded-xl bg-white p-12"
+        style={{ border: `2px dashed ${theme.accent}` }}
+        {...fadeInUp}
+      >
+        <div className="text-6xl mb-4">{theme.emptyIcon}</div>
+        <div className="text-2xl font-bold text-neutral-900 mb-2">Coming Soon</div>
+        <p className="text-gray-500">
+          Explore our exclusive {themeKey === 'accessories' ? 'accessories' : 'gift'} collection
+        </p>
+      </motion.div>
+    );
+  }
+
+  const subcategoryEntries = Object.entries(groupedProducts).sort((a, b) => {
+    const subcategories = themeKey === 'accessories' ? ACCESSORIES_SUBCATEGORIES : GIFTS_SUBCATEGORIES;
+    const indexA = subcategories.indexOf(a[0]);
+    const indexB = subcategories.indexOf(b[0]);
+    // Uncategorized goes to the end
+    if (a[0] === 'Uncategorized') return 1;
+    if (b[0] === 'Uncategorized') return -1;
+    // If both are in the list, sort by index
+    if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+    // If only one is in the list, prioritize it
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
+    // If neither is in the list, maintain order
+    return 0;
+  });
+
+  return (
+    <div className="space-y-12">
+      {subcategoryEntries.map(([subcategory, products]) => {
+        const isExpanded = expandedSubcategories.has(subcategory);
+        const displayProducts = isExpanded ? products : products.slice(0, 3);
+        const hasMore = products.length > 3;
+
+        return (
+          <motion.div key={subcategory} {...fadeInUp} className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-bold text-neutral-900">{subcategory}</h3>
+              <span className="text-sm text-gray-500">{products.length} products</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  theme={theme}
+                  themeKey={themeKey}
+                  instagramHandle={instagramHandle}
+                />
+              ))}
+            </div>
+            {hasMore && (
+              <div className="flex justify-end">
+                <button
+                  onClick={() => toggleSubcategory(subcategory)}
+                  className="px-6 py-2 rounded-md text-sm font-semibold text-white transition"
+                  style={{ background: theme.accent }}
+                >
+                  {isExpanded ? 'Show Less' : `View All (${products.length})`}
+                </button>
+              </div>
+            )}
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ProductGrid({
   items,
   themeKey,
@@ -203,90 +487,13 @@ function ProductGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {items.map((product) => (
-        <motion.article
+        <ProductCard
           key={product.id}
-          variants={hoverCard}
-          initial="rest"
-          whileHover="hover"
-          animate="rest"
-          className="bg-white rounded-xl overflow-hidden border-2 border-transparent transition"
-          style={{ boxShadow: '0 4px 15px rgba(0,0,0,0.08)' }}
-        >
-          <div
-            className="w-full h-64 flex items-center justify-center overflow-hidden relative"
-            style={{
-              background: `linear-gradient(135deg, ${theme.accentLight}, ${theme.accentSecondary}33)`,
-            }}
-          >
-            {product.badge ? (
-              <span className="absolute top-3 left-3 z-10 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-neutral-800 shadow-sm border border-white/70">
-                {product.badge}
-              </span>
-            ) : null}
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-cover transition duration-300 hover:scale-105"
-              loading="lazy"
-              decoding="async"
-              onError={(e) => {
-                const fallback = document.createTextNode(theme.emptyIcon);
-                e.currentTarget.replaceWith(fallback);
-              }}
-            />
-          </div>
-          <div className="p-5 space-y-3">
-            <div>
-              <div className="text-lg font-bold text-neutral-900">{product.name}</div>
-              {product.subcategory && (
-                <div className="text-xs text-gray-500 mt-1 font-medium">{product.subcategory}</div>
-              )}
-            </div>
-            <p className="text-sm text-gray-600 leading-relaxed">{product.desc}</p>
-            <div className="space-y-1">
-              {product.offerPrice ? (
-                <div className="flex items-center gap-2">
-                  <div className="text-lg font-semibold" style={{ color: theme.accent }}>
-                    ₹{product.offerPrice}
-                  </div>
-                  {product.originalPrice && (
-                    <div className="text-sm text-gray-400 line-through">₹{product.originalPrice}</div>
-                  )}
-                </div>
-              ) : product.originalPrice ? (
-                <div className="text-base font-semibold" style={{ color: theme.accent }}>
-                  ₹{product.originalPrice}
-                </div>
-              ) : (
-                <div className="text-base font-semibold" style={{ color: theme.accent }}>
-                  ₹{product.price || 'Price on inquiry'}
-                </div>
-              )}
-            </div>
-            {themeKey === 'accessories' && product.availableQuantity !== undefined && (
-              <div>
-                {product.availableQuantity === 0 ? (
-                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
-                    Sold Out
-                  </span>
-                ) : product.availableQuantity <= 3 ? (
-                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-50 text-orange-700 border border-orange-200">
-                    Only {product.availableQuantity} remaining
-                  </span>
-                ) : null}
-              </div>
-            )}
-            <a
-              href={`https://www.instagram.com/${instagramHandle}/`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-white transition"
-              style={{ background: theme.accent }}
-            >
-              💬 DM on Instagram
-            </a>
-          </div>
-        </motion.article>
+          product={product}
+          theme={theme}
+          themeKey={themeKey}
+          instagramHandle={instagramHandle}
+        />
       ))}
     </div>
   );
@@ -528,12 +735,21 @@ export default function CuratedPage() {
                 exit="exit"
                 transition={{ duration: reducedMotion ? 0 : 0.3 }}
               >
-                <ProductGrid
-                  items={filteredProducts}
-                  themeKey={business}
-                  loading={loading[business]}
-                  instagramHandle={instagramHandle}
-                />
+                {business === 'accessories' ? (
+                  <ProductGridBySubcategory
+                    items={filteredProducts}
+                    themeKey={business}
+                    loading={loading[business]}
+                    instagramHandle={instagramHandle}
+                  />
+                ) : (
+                  <ProductGrid
+                    items={filteredProducts}
+                    themeKey={business}
+                    loading={loading[business]}
+                    instagramHandle={instagramHandle}
+                  />
+                )}
               </motion.div>
             </AnimatePresence>
           </motion.section>
