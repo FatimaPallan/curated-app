@@ -3,9 +3,13 @@ export type ApiProduct = {
   title: string;
   description?: string;
   price?: string;
+  originalPrice?: string;
+  offerPrice?: string;
   category?: 'accessories' | 'gifts';
+  subcategory?: string;
   imageUrl?: string;
   badge?: string;
+  availableQuantity?: number;
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'https://backend-78qe.onrender.com';

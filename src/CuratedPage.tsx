@@ -8,8 +8,12 @@ type Product = {
   name: string;
   desc: string;
   price: string;
+  originalPrice?: string;
+  offerPrice?: string;
   image: string;
   badge?: string;
+  subcategory?: string;
+  availableQuantity?: number;
 };
 
 const THEMES = {
@@ -62,14 +66,6 @@ const InstagramIcon = () => (
   </svg>
 );
 
-const WhatsAppIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none">
-    <path
-      d="M12.04 2C6.52 2 2.04 6.48 2.04 12c0 1.77.46 3.49 1.33 5.01L2 22l5.15-1.35A9.93 9.93 0 0 0 12.04 22c5.52 0 10-4.48 10-10s-4.48-10-10-10zm5.63 13.62c-.24.68-1.41 1.3-1.93 1.38-.49.07-1.12.1-1.8-.11-.41-.13-.94-.3-1.62-.59-2.85-1.23-4.71-4.09-4.85-4.28-.13-.19-1.16-1.54-1.16-2.94 0-1.4.73-2.09.99-2.38.26-.29.57-.36.76-.36.19 0 .38 0 .54.01.18.01.42-.07.66.51.24.58.82 2 .89 2.14.07.14.11.31.02.5-.09.19-.13.31-.26.48-.13.17-.28.38-.4.51-.13.13-.26.27-.11.54.15.27.67 1.1 1.43 1.78.98.87 1.8 1.14 2.07 1.27.27.13.43.11.59-.07.16-.18.68-.79.86-1.06.18-.27.36-.23.6-.14.24.09 1.53.72 1.79.85.26.13.43.2.49.31.06.11.06.64-.18 1.32z"
-      fill="currentColor"
-    />
-  </svg>
-);
 
 const TESTIMONIALS = [
   { quote: 'Beautifully crafted and exactly as I envisioned.', name: 'Riya', tag: 'Custom bouquet' },
@@ -84,8 +80,22 @@ const FILTERS: Record<
   accessories: [
     { id: 'all', label: 'All', matches: () => true },
     { id: 'featured', label: 'Featured', matches: (p) => Boolean(p.badge) },
-    { id: 'under1500', label: 'Under ₹1,500', matches: (p) => priceToNumber(p.price) <= 1500 },
-    { id: 'premium', label: 'Premium', matches: (p) => priceToNumber(p.price) > 2000 },
+    {
+      id: 'under1500',
+      label: 'Under ₹1,500',
+      matches: (p) => {
+        const price = p.offerPrice || p.originalPrice || p.price;
+        return priceToNumber(price) <= 1500;
+      },
+    },
+    {
+      id: 'premium',
+      label: 'Premium',
+      matches: (p) => {
+        const price = p.offerPrice || p.originalPrice || p.price;
+        return priceToNumber(price) > 2000;
+      },
+    },
   ],
   gifts: [
     { id: 'all', label: 'All', matches: () => true },
@@ -99,7 +109,14 @@ const FILTERS: Record<
       label: 'Hampers',
       matches: (p) => /hamper|basket|box/i.test(p.name),
     },
-    { id: 'premium', label: 'Premium', matches: (p) => priceToNumber(p.price) > 2500 },
+    {
+      id: 'premium',
+      label: 'Premium',
+      matches: (p) => {
+        const price = p.offerPrice || p.originalPrice || p.price;
+        return priceToNumber(price) > 2500;
+      },
+    },
   ],
 };
 
@@ -111,12 +128,17 @@ function toProduct(api: ApiProduct, fallbackId: number): Product {
     name: api.title ?? 'Untitled',
     desc: api.description ?? '',
     price: api.price ? String(api.price) : '',
+    originalPrice: api.originalPrice ? String(api.originalPrice) : undefined,
+    offerPrice: api.offerPrice ? String(api.offerPrice) : undefined,
     image: api.imageUrl || '',
     badge: api.badge,
+    subcategory: api.subcategory,
+    availableQuantity: api.availableQuantity,
   };
 }
 
-function priceToNumber(price: string) {
+function priceToNumber(price: string | undefined): number {
+  if (!price) return 0;
   const n = Number(price.replace(/[^\d.]/g, ''));
   return Number.isFinite(n) ? n : 0;
 }
@@ -125,10 +147,12 @@ function ProductGrid({
   items,
   themeKey,
   loading,
+  instagramHandle,
 }: {
   items: Product[];
   themeKey: ThemeKey;
   loading: boolean;
+  instagramHandle: string;
 }) {
   const theme = THEMES[themeKey];
 
@@ -212,19 +236,54 @@ function ProductGrid({
             />
           </div>
           <div className="p-5 space-y-3">
-            <div className="text-lg font-bold text-neutral-900">{product.name}</div>
-            <p className="text-sm text-gray-600 leading-relaxed">{product.desc}</p>
-            <div className="text-base font-semibold" style={{ color: theme.accent }}>
-              ₹{product.price}
+            <div>
+              <div className="text-lg font-bold text-neutral-900">{product.name}</div>
+              {product.subcategory && (
+                <div className="text-xs text-gray-500 mt-1 font-medium">{product.subcategory}</div>
+              )}
             </div>
+            <p className="text-sm text-gray-600 leading-relaxed">{product.desc}</p>
+            <div className="space-y-1">
+              {product.offerPrice ? (
+                <div className="flex items-center gap-2">
+                  <div className="text-lg font-semibold" style={{ color: theme.accent }}>
+                    ₹{product.offerPrice}
+                  </div>
+                  {product.originalPrice && (
+                    <div className="text-sm text-gray-400 line-through">₹{product.originalPrice}</div>
+                  )}
+                </div>
+              ) : product.originalPrice ? (
+                <div className="text-base font-semibold" style={{ color: theme.accent }}>
+                  ₹{product.originalPrice}
+                </div>
+              ) : (
+                <div className="text-base font-semibold" style={{ color: theme.accent }}>
+                  ₹{product.price || 'Price on inquiry'}
+                </div>
+              )}
+            </div>
+            {themeKey === 'accessories' && product.availableQuantity !== undefined && (
+              <div>
+                {product.availableQuantity === 0 ? (
+                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
+                    Sold Out
+                  </span>
+                ) : product.availableQuantity <= 3 ? (
+                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-50 text-orange-700 border border-orange-200">
+                    Only {product.availableQuantity} remaining
+                  </span>
+                ) : null}
+              </div>
+            )}
             <a
-              href={`https://wa.me/917406785941?text=Hi! I'm interested in: ${product.name}`}
+              href={`https://www.instagram.com/${instagramHandle}/`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-white transition"
               style={{ background: theme.accent }}
             >
-              💬 Inquire Now
+              💬 DM on Instagram
             </a>
           </div>
         </motion.article>
@@ -412,19 +471,17 @@ export default function CuratedPage() {
                   </div>
                   <div className="flex flex-wrap gap-3">
                     <a
-                      href={`https://wa.me/${SOCIAL.whatsappNumber}?text=Hi! I'd like a custom ${
-                        business === 'accessories' ? 'accessory' : 'gift'
-                      }.`}
+                      href={`https://www.instagram.com/${instagramHandle}/`}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold text-white gap-2"
                       style={{ background: theme.accent }}
                     >
-                      <WhatsAppIcon />
-                      <span>Custom Order</span>
+                      <InstagramIcon />
+                      <span>DM for Custom Order</span>
                     </a>
                     <a
-                      href={`https://instagram.com/${instagramHandle}`}
+                      href={`https://www.instagram.com/${instagramHandle}/`}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold text-neutral-800 bg-white border border-gray-200 gap-2"
@@ -475,6 +532,7 @@ export default function CuratedPage() {
                   items={filteredProducts}
                   themeKey={business}
                   loading={loading[business]}
+                  instagramHandle={instagramHandle}
                 />
               </motion.div>
             </AnimatePresence>
@@ -494,14 +552,14 @@ export default function CuratedPage() {
       </main>
 
       <a
-        href={`https://wa.me/${SOCIAL.whatsappNumber}?text=Hi! I'd like to place an order.`}
+        href={`https://www.instagram.com/${instagramHandle}/`}
         target="_blank"
         rel="noreferrer"
         className="fixed right-4 bottom-4 md:right-6 md:bottom-6 rounded-full px-4 py-3 text-sm font-semibold text-white shadow-lg inline-flex items-center gap-2"
         style={{ background: theme.accent }}
       >
-        <WhatsAppIcon />
-        <span>Message on WhatsApp</span>
+        <InstagramIcon />
+        <span>DM on Instagram</span>
       </a>
     </div>
   );
