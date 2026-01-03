@@ -199,19 +199,46 @@ function ProductCard({
     >
       <div
         className="w-full h-64 flex items-center justify-center overflow-hidden relative"
-        style={{
-          background: `linear-gradient(135deg, ${theme.accentLight}, ${theme.accentSecondary}33)`,
-        }}
       >
+        {/* Blurred background image */}
+        {product.image ? (
+          <div
+            className="absolute inset-0 w-full h-full"
+            style={{
+              backgroundImage: `url(${product.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'blur(20px)',
+              transform: 'scale(1.1)',
+              zIndex: 0,
+            }}
+          />
+        ) : (
+          <div
+            className="absolute inset-0 w-full h-full"
+            style={{
+              background: `linear-gradient(135deg, ${theme.accentLight}, ${theme.accentSecondary}33)`,
+              zIndex: 0,
+            }}
+          />
+        )}
+        {/* Subtle gradient overlay */}
+        <div
+          className="absolute inset-0 w-full h-full"
+          style={{
+            background: `linear-gradient(135deg, ${theme.accentLight}40, ${theme.accentSecondary}20)`,
+            zIndex: 1,
+          }}
+        />
         {product.badge ? (
-          <span className="absolute top-3 left-3 z-10 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-neutral-800 shadow-sm border border-white/70">
+          <span className="absolute top-3 left-3 z-20 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-neutral-800 shadow-sm border border-white/70">
             {product.badge}
           </span>
         ) : null}
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-cover transition duration-300 hover:scale-105"
+          className="relative z-10 w-full h-full object-contain transition duration-300 hover:scale-105"
           loading="lazy"
           decoding="async"
           onError={(e) => {
